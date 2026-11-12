@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monitoring Urugan Tanah Merah</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#667085;--bd:#d9dde5;--pr:#b45309;--pr2:#92400e;--ok:#15803d;--dg:#b91c1c;--hd:#fef3c7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161b;--card:#1e2129;--tx:#eceef3;--mut:#9aa3b2;--bd:#343945;--pr:#f59e0b;--pr2:#d97706;--hd:#3a2f12;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14161b;--card:#1e2129;--tx:#eceef3;--mut:#9aa3b2;--bd:#343945;--pr:#f59e0b;--pr2:#d97706;--hd:#3a2f12;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:0 0 2px}.sub{color:var(--mut);font-size:13px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+select,input[type=text],input[type=number],input[type=date]{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+button{border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer;background:var(--pr);color:#fff}
+button.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+button.dg{background:var(--dg)}
+button.ok{background:var(--ok)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-top:10px}
+.vol{font-weight:700;color:var(--ok)}
+.prev{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.prev img{width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--bd)}
+.sum{display:flex;gap:10px;flex-wrap:wrap}
+.sum div{flex:1;min-width:120px;background:var(--hd);border-radius:10px;padding:10px}
+.sum b{display:block;font-size:20px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{border:1px solid var(--bd);padding:7px 8px;text-align:center;vertical-align:middle}
+th{background:var(--hd);font-size:13px}
+td img{width:64px;height:64px;object-fit:cover;border-radius:6px;cursor:pointer;margin:2px}
+td.act{white-space:nowrap}
+td.act button{padding:5px 9px;font-size:12px}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.empty{color:var(--mut);padding:18px;text-align:center}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:9}
+#lb img{max-width:94%;max-height:90%;border-radius:8px}
+@media print{body{background:#fff;color:#000}.noprint{display:none!important}.card{border:0;padding:0}th{background:#eee!important}td.act,th.act{display:none}}
+
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1;background:var(--card);color:var(--tx);border:1px solid var(--bd);padding:10px 4px;font-size:13px}.tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.dim{border:1px solid var(--bd);border-radius:10px;padding:10px}.dim img.pv{width:80px;height:80px;object-fit:cover;border-radius:8px;display:none;margin-top:8px;cursor:pointer}
+select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+input[readonly]{opacity:.65; background: rgba(0,0,0,0.05); cursor: not-allowed;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><h1 data-i="title"></h1><div class="sub" data-i="sub"></div></div><button class="sec noprint" id="lang"></button></div>
+  <div class="card noprint"><div class="grid">
+    <div><label data-i="proyek"></label><input type="text" id="proyek" data-ph="phProyek"></div>
+    <div><label data-i="tgl"></label><input type="date" id="tgl"></div></div></div>
+  <div class="tabs noprint"><button data-tab="1" data-i="tab1"></button><button data-tab="2" data-i="tab2"></button><button data-tab="3" data-i="tab3"></button></div>
+
+  <section id="s1">
+    <div class="card"><b id="k1t"></b>
+      <div class="grid" style="margin-top:8px">
+        <div style="grid-column:1/-1"><label data-i="truck"></label><input type="text" id="kNo" placeholder="KT 1234 AB"></div>
+        <div class="dim"><label data-i="p"></label><input type="number" id="kP" step="0.01" min="0" inputmode="decimal" readonly><button class="sec" data-cam="fp" data-i="cam1" style="margin-top:6px"></button><br><img class="pv th" id="v_fp" alt=""></div>
+        <div class="dim"><label data-i="l"></label><input type="number" id="kL" step="0.01" min="0" inputmode="decimal" readonly><button class="sec" data-cam="fl" data-i="cam1" style="margin-top:6px"></button><br><img class="pv th" id="v_fl" alt=""></div>
+        <div class="dim"><label data-i="vol"></label><input type="number" id="kVol" step="0.01" min="0" inputmode="decimal"><button class="sec" data-cam="ft" data-i="cam1" style="margin-top:6px"></button><br><img class="pv th" id="v_ft" alt=""></div>
+      </div>
+      <div style="margin-top:8px; font-size:13px; color:var(--mut);">Tinggi (m): <b id="kTinggi" style="color:var(--tx)">0.00</b></div>
+      <div class="row"><button id="kSimpan"></button><button class="sec" id="kBatal" style="display:none" data-i="batal"></button></div>
+    </div>
+    <div class="card"><div class="tw"><table style="min-width:560px">
+      <thead><tr><th data-i="no"></th><th data-i="truck"></th><th data-i="p"></th><th data-i="l"></th><th data-i="t"></th><th data-i="vol"></th><th class="act" data-i="aksi"></th></tr></thead>
+      <tbody id="kTb"></tbody></table></div></div>
+  </section>
+
+  <section id="s2" style="display:none">
+    <div class="card"><b data-i="ritT"></b>
+      <div style="margin-top:8px"><select id="rSel"></select></div>
+      <div id="rBox" style="display:none">
+        <div class="sum" style="margin:10px 0"><div><span data-i="truck"></span><b id="rNo"></b></div><div class="prev" id="rThumbs"></div></div>
+        <div class="grid">
+          <div><label data-i="p"></label><input type="number" id="rP" readonly></div>
+          <div><label data-i="l"></label><input type="number" id="rL" readonly></div>
+          <div><label data-i="vol"></label><input type="number" id="rVol" step="0.01" min="0" inputmode="decimal"></div>
+          <div><label data-i="t"></label><div class="vol" id="rT" style="padding:9px 0;font-size:18px">0.00</div></div>
+        </div>
+        <label style="margin-top:10px" data-i="fotoRit"></label>
+        <div class="row" style="margin-top:0"><button id="rCam" data-i="cam"></button><button class="sec" id="rGal" data-i="gal"></button></div>
+        <div class="prev" id="rPrev"></div>
+        <div class="row"><button id="rSave" data-i="catat"></button></div>
+        <div class="vol" id="rMsg" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3" style="display:none">
+    <div class="card">
+      <div class="grid noprint"><div><label data-i="dari"></label><input type="date" id="fDari"></div><div><label data-i="sampai"></label><input type="date" id="fSmp"></div></div>
+      <h3 id="rHead" style="margin:12px 0 8px;font-size:16px"></h3>
+      <div class="sum"><div><span data-i="totRit"></span><b id="sRit">0</b></div><div><span data-i="totVol"></span><b id="sVol"></b></div></div>
+      
+      <!-- FITUR SIMPAN / BACKUP -->
+      <div class="row noprint" style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--bd);">
+        <button class="ok" id="backupBtn">💾 Simpan Data / Backup</button>
+        <button class="sec" id="restoreBtn">📂 Muat Data / Restore</button>
+        <input type="file" id="restoreFile" accept=".json" style="display:none">
+      </div>
+
+      <div class="row noprint"><button class="sec" id="csv" data-i="csv"></button><button class="sec" id="cetak" data-i="print"></button><button class="dg" id="hapusSemua" data-i="delAll"></button></div>
+      <b style="display:block;margin:14px 0 6px" data-i="rekapK"></b>
+      <div class="tw"><table style="min-width:400px"><thead><tr><th data-i="no"></th><th data-i="truck"></th><th data-i="rit"></th><th data-i="totVol"></th></tr></thead><tbody id="aTb"></tbody><tfoot id="aTf"></tfoot></table></div>
+      <b style="display:block;margin:14px 0 6px" data-i="rekapD"></b>
+      <div class="tw"><table style="min-width:700px"><thead><tr><th data-i="no"></th><th data-i="waktu"></th><th data-i="truck"></th><th data-i="thDim"></th><th data-i="vol"></th><th data-i="thFoto"></th><th class="act noprint" data-i="aksi"></th></tr></thead><tbody id="dTb"></tbody><tfoot id="dTf"></tfoot></table></div>
+    </div>
+  </section>
+</div>
+<div id="lb"><img alt=""></div>
+<script>
+var KEY="mpt_v1",S={proyek:"Depot Banjar Baru",tgl:"",kendaraan:[],rits:[]},LANG="id",editK=null,tmpK={},tmpR=[];
+var $=function(i){return document.getElementById(i)};
+var SEED=[["KT8964CB",425,192,168,13.7],["KH8393AP",423,192,175,14.2],["KH8885FL",430,195,170,14.2],["DA8604TLA",420,195,175,14.3],["KH8298R",420,195,170,13.9],["DA8913HE",390,190,165,12.2],["DA8457LK",420,193,150,12.1],["DA8069BS",422,200,165,13.9],["DA8139CK",420,195,155,12.6],["KH8885FL",430,195,170,14.2],["KT8964CB",425,192,168,13.7],["KH8393AP",423,192,175,14.2],["DA8069BS",422,200,165,13.9],["DA8457LK",420,193,150,12.1],["DA8139CK",420,195,155,12.6],["DA8706TPC",415,186,165,12.7],["DA8188GJ",412,188,167,12.9],["DA8604TLA",420,195,175,14.3],["KH8298R",420,195,170,13.9],["DA8913HE",390,190,165,12.2],["DA8718CD",415,190,110,8.6],["KH8885FL",430,195,170,14.2],["DA8782TLA",410,195,130,10.3],["KT8964CB",425,192,148,12.0],["KH8393AP",423,192,145,11.7],["DA8457LK",420,193,150,12.1],["DA8069BS",422,200,165,13.9],["DA8049LH",415,192,150,11.9],["KT8523PH",390,183,140,9.9],["KH8885FL",430,195,170,14.2],["KH8298R",420,195,170,13.9],["DA8895JE",416,191,95,7.5],["DA8139CK",420,195,155,12.6],["DA8782TLA",410,195,165,13.1],["KT8964CB",425,192,168,13.7],["DA8457LK",420,193,150,12.1],["DA8069BS",422,200,165,13.9],["DA8206HI",415,192,160,12.7],["DA8376FI",415,185,175,13.4],["DA8270JI",410,185,162,12.2],["KH9135FD",420,189,170,13.4],["DA8706TPC",415,186,165,12.7],["DA8188GJ",412,188,167,12.9],["KH8393AP",423,192,175,14.2],["DA8913HE",390,190,165,12.2],["DA8949CH",415,187,145,11.2]];
+var TX={
+id:{title:"Monitoring Urugan Tanah Merah",sub:"1) Daftarkan kendaraan → 2) Catat rit → 3) Rekap",proyek:"Proyek / Lokasi",phProyek:"Nama proyek",tgl:"Tanggal kerja",tab1:"1. Daftar Kendaraan",tab2:"2. Catat Rit",tab3:"3. Rekap",truck:"Nomor Kendaraan",p:"Panjang (m)",l:"Lebar (m)",t:"Tinggi (m)",vol:"Volume Muatan (m³)",cam1:"📷 Foto",cam:"📷 Kamera",gal:"🖼️ Galeri",simpan:"Simpan",update:"Perbarui",batal:"Batal",daftarT:"Daftarkan Kendaraan",editK:"Edit Kendaraan",ritT:"Pilih Kendaraan & Catat Rit",pilih:"— Pilih kendaraan —",catat:"Hitung & Catat Rit",fotoRit:"Foto dokumentasi rit",ok:"✅ Rit tercatat",no:"No",aksi:"Aksi",bEdit:"Edit",bDel:"Hapus",empty1:"Belum ada kendaraan terdaftar.",empty2:"Belum ada data rit.",total:"TOTAL",ritU:"rit",rekapK:"Rekap per Kendaraan",rekapD:"Detail Rit",rekapT:"Rekap Urugan Tanah Merah",dari:"Dari tanggal",sampai:"Sampai tanggal",rit:"Jumlah Rit",totRit:"Total Rit",totVol:"Total Volume",waktu:"Waktu",thFoto:"Foto Dokumentasi",thDim:"P (m) – L (m) – T (m)",csv:"Ekspor CSV",print:"Cetak / PDF",delAll:"Hapus semua rit",aTruck:"Nomor kendaraan wajib diisi",aDim:"Panjang, lebar, dan volume wajib diisi",aFotoReg:"Foto panjang, lebar, dan tinggi wajib diambil",aFotoRit:"Minimal 1 foto dokumentasi rit",aDup:"Nomor kendaraan sudah terdaftar",aPilih:"Pilih kendaraan terlebih dahulu",aVol:"Volume muatan wajib diisi",cDelK:"Hapus kendaraan ini? (data rit lama tidak berubah)",cDelR:"Hapus rit ini?",cDelAll:"Hapus SEMUA data rit?",full:"Penyimpanan penuh. Ekspor CSV lalu hapus sebagian data.",tapDel:"Ketuk untuk hapus",gpsNA:"GPS: tidak tersedia",stGal:"Foto dari galeri (tanpa GPS)",lokasi:"Lokasi",lokNA:"Lokasi: nama tempat tidak tersedia (perlu internet)",nFoto:"Jumlah Foto",sw:"🌐 Tiếng Việt",loc:"id-ID"},
+vi:{title:"Giám Sát Đổ Đất Thải",sub:"1) Đăng ký phương tiện → 2) Ghi chuyến → 3) Tổng hợp",proyek:"Dự án / Địa điểm",phProyek:"Tên dự án",tgl:"Ngày làm việc",tab1:"1. Đăng ký xe",tab2:"2. Ghi chuyến",tab3:"3. Tổng hợp",truck:"Biển số xe",p:"Dài (m)",l:"Rộng (m)",t:"Cao (m)",vol:"Thể tích (m³)",cam1:"📷 Ảnh",cam:"📷 Camera",gal:"🖼️ Thư viện",simpan:"Lưu",update:"Cập nhật",batal:"Hủy",daftarT:"Đăng ký phương tiện",editK:"Sửa phương tiện",ritT:"Chọn xe & ghi chuyến",pilih:"— Chọn phương tiện —",catat:"Tính & ghi chuyến",fotoRit:"Ảnh tài liệu của chuyến",ok:"✅ Đã ghi chuyến",no:"STT",aksi:"Thao tác",bEdit:"Sửa",bDel:"Xóa",empty1:"Chưa có phương tiện nào được đăng ký.",empty2:"Chưa có dữ liệu chuyến.",total:"TỔNG",ritU:"chuyến",rekapK:"Tổng hợp theo phương tiện",rekapD:"Chi tiết các chuyến",rekapT:"Tổng hợp đổ đất thải",dari:"Từ ngày",sampai:"Đến ngày",rit:"Số chuyến",totRit:"Tổng số chuyến",totVol:"Tổng thể tích",waktu:"Thời gian",thFoto:"Ảnh tài liệu",thDim:"D (m) – R (m) – C (m)",csv:"Xuất CSV",print:"In / PDF",delAll:"Xóa tất cả chuyến",aTruck:"Bắt buộc nhập biển số xe",aDim:"Bắt buộc nhập chiều dài, rộng và cao",aFotoReg:"Bắt buộc chụp ảnh chiều dài, rộng và cao",aFotoRit:"Cần ít nhất 1 ảnh tài liệu của chuyến",aDup:"Biển số xe đã được đăng ký",aPilih:"Hãy chọn phương tiện trước",aVol:"Bắt buộc nhập thể tích",cDelK:"Xóa phương tiện này? (dữ liệu chuyến cũ không đổi)",cDelR:"Xóa chuyến này?",cDelAll:"Xóa TẤT CẢ dữ liệu chuyến?",full:"Bộ nhớ đã đầy. Hãy xuất CSV rồi xóa bớt dữ liệu.",tapDel:"Chạm để xóa",gpsNA:"GPS: không khả dụng",stGal:"Ảnh từ thư viện (không có GPS)",lokasi:"Địa điểm",lokNA:"Địa điểm: không khả dụng (cần internet)",nFoto:"Số ảnh",sw:"🌐 Bahasa Indonesia",loc:"vi-VN"}};
+function tr_(k){return TX[LANG][k]}
+function fmt(n){return Number(n).toLocaleString("id-ID",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function num(v){return parseFloat(v)||0}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function hari(){return new Date().toISOString().slice(0,10)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){alert(tr_("full"))}}
+function load(){try{var d=localStorage.getItem(KEY);if(d)S=Object.assign(S,JSON.parse(d))}catch(e){}
+  if(S.rows&&!S.rits.length){S.rits=S.rows.map(function(r){return{id:r.id,kid:null,nomor:r.truck,p:r.p,l:r.l,t:r.t,vol:r.vol,foto:r.foto||[],tgl:S.tgl||hari(),waktu:r.id}})}
+  delete S.rows;if(!S.kendaraan)S.kendaraan=[];if(!S.rits)S.rits=[];
+  if(!S.seed1112){var by={},b0=Date.now();S.kendaraan.forEach(function(k){by[k.nomor]=k});
+    SEED.forEach(function(r,i){var k=by[r[0]];
+      if(!k){k={id:b0+i,nomor:r[0],p:r[1]/100,l:r[2]/100,t:r[3]/100};S.kendaraan.push(k);by[r[0]]=k}
+      S.rits.push({id:b0+1000+i,kid:k.id,nomor:r[0],p:r[1]/100,l:r[2]/100,t:r[3]/100,vol:r[4],foto:[],tgl:"2026-11-12",waktu:new Date(2026,10,12,0,0,i).getTime(),imp:1})});
+    S.seed1112=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}}
+function waktuLokal(d){return d.toLocaleString(tr_("loc"),{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZoneName:"short"}).replace(/\./g,":")}
+function ambilGPS(){return new Promise(function(res){
+  if(!navigator.geolocation){res(null);return}
+  navigator.geolocation.getCurrentPosition(function(p){res({lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy})},
+    function(){res(null)},{enableHighAccuracy:true,timeout:12000,maximumAge:20000})})}
+var gpsP=null,cacheAl={};
+function ambilAlamat(g){return new Promise(function(res){
+  if(!g||navigator.onLine===false){res(null);return}
+  var k=LANG+g.lat.toFixed(4)+","+g.lon.toFixed(4);
+  if(cacheAl[k]){res(cacheAl[k]);return}
+  var ac=new AbortController(),tm=setTimeout(function(){ac.abort()},8000);
+  fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&accept-language="+LANG+"&lat="+g.lat+"&lon="+g.lon,{signal:ac.signal})
+    .then(function(r){return r.json()})
+    .then(function(j){clearTimeout(tm);var a=j&&j.display_name?j.display_name:null;if(a)cacheAl[k]=a;res(a)})
+    .catch(function(){clearTimeout(tm);res(null)})})}
+function ambilLokasi(){return ambilGPS().then(function(g){if(!g)return null;return ambilAlamat(g).then(function(a){g.alamat=a;return g})})}
+function bungkus(x,teks,maks){var w=teks.split(" "),L=[],cur="";
+  w.forEach(function(k){var t=cur?cur+" "+k:k;if(x.measureText(t).width>maks&&cur){L.push(cur);cur=k}else cur=t});
+  if(cur)L.push(cur);return L}
+function stamp(c,waktu,gps,kamera){
+  var x=c.getContext("2d"),fs=Math.max(13,Math.round(c.width*0.028)),pad=Math.round(fs*0.6),lh=fs+4;
+  x.font="600 "+fs+"px system-ui,sans-serif";
+  var L=[waktuLokal(waktu)];
+  if(!kamera)L.push(tr_("stGal"));
+  else if(!gps)L.push(tr_("gpsNA"));
+  else{
+    L.push("GPS: "+gps.lat.toFixed(6)+", "+gps.lon.toFixed(6)+" (±"+Math.round(gps.acc)+" m)");
+    var al=gps.alamat?tr_("lokasi")+": "+gps.alamat:tr_("lokNA");
+    var w=bungkus(x,al,c.width-pad*2);
+    if(w.length>5){w=w.slice(0,5);w[4]+="…"}
+    L=L.concat(w)}
+  var h=L.length*lh+pad*2;
+  x.fillStyle="rgba(0,0,0,.65)";x.fillRect(0,c.height-h,c.width,h);
+  x.fillStyle="#fff";x.textBaseline="top";x.font="600 "+fs+"px system-ui,sans-serif";
+  L.forEach(function(t,i){x.fillText(t,pad,c.height-h+pad+i*lh)})}
+function kompres(file,kamera,gps){return new Promise(function(res){
+  var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){
+    var m=900,w=im.width,h=im.height,k=Math.min(1,m/Math.max(w,h));
+    var c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
+    c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+    stamp(c,kamera?new Date():new Date(file.lastModified||Date.now()),gps,kamera);
+    res(c.toDataURL("image/jpeg",.7))};
+    im.onerror=function(){res(null)};im.src=r.result};
+  r.onerror=function(){res(null)};r.readAsDataURL(file)})}
+
+function ambilFoto(cb,kamera){
+  var i=document.createElement("input");i.type="file";i.accept="image/*";
+  if(kamera){i.capture="environment";gpsP=ambilLokasi()}else{i.multiple=true}
+  i.onchange=async function(){var g=kamera?await gpsP:null;gpsP=null;
+    for(var f of i.files){var d=await kompres(f,kamera,g);if(d)cb(d)}};
+  i.click()}
+function show(n){[1,2,3].forEach(function(i){$("s"+i).style.display=i===n?"":"none";document.querySelector('[data-tab="'+i+'"]').classList.toggle("on",i===n)});
+  if(n===2)fillSel();if(n===3)renderRekap()}
+document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){show(+this.getAttribute("data-tab"))}});
+
+/* ---- Langkah 1: daftar kendaraan ---- */
+var DK=["fp","fl","ft"];
+function showK(){DK.forEach(function(k){var m=$("v_"+k);if(tmpK[k]){m.src=tmpK[k];m.style.display="block"}else{m.removeAttribute("src");m.style.display="none"}})}
+function setK(){$("k1t").textContent=tr_(editK?"editK":"daftarT");$("kSimpan").textContent=tr_(editK?"update":"simpan");$("kBatal").style.display=editK?"":"none"}
+function kReset(){editK=null;tmpK={};["kNo","kP","kL","kVol"].forEach(function(i){$(i).value=""});$("kTinggi").textContent="0.00";showK();setK()}
+document.querySelectorAll("[data-cam]").forEach(function(b){b.onclick=function(){var k=this.getAttribute("data-cam");ambilFoto(function(d){tmpK[k]=d;showK()},true)}});
+$("kBatal").onclick=kReset;
+
+function hitungTinggiK(){
+  var p=num($("kP").value),l=num($("kL").value),v=num($("kVol").value);
+  var t = (p&&l)? (v/(p*l)) : 0;
+  $("kTinggi").textContent=fmt(t);
+  return t;
+}
+$("kVol").addEventListener("input", hitungTinggiK);
+$("kP").addEventListener("input", hitungTinggiK);
+$("kL").addEventListener("input", hitungTinggiK);
+
+$("kSimpan").onclick=function(){
+  var no=$("kNo").value.trim().toUpperCase(),p=num($("kP").value),l=num($("kL").value),v=num($("kVol").value);
+  if(!no){alert(tr_("aTruck"));return}
+  if(!p||!l||!v){alert(tr_("aDim"));return}
+  if(!tmpK.fp||!tmpK.fl||!tmpK.ft){alert(tr_("aFotoReg"));return}
+  if(S.kendaraan.some(function(k){return k.nomor===no&&k.id!==editK})){alert(tr_("aDup"));return}
+  
+  var t = v/(p*l);
+  var o={id:editK||Date.now(),nomor:no,p:p,l:l,t:t,volStd:v,fp:tmpK.fp,fl:tmpK.fl,ft:tmpK.ft};
+  
+  if(editK){S.kendaraan=S.kendaraan.map(function(k){return k.id===editK?o:k})}else{S.kendaraan.push(o)}
+  save();kReset();renderK()};
+function im(s){return s?'<img class="th" src="'+s+'">':""}
+function renderK(){
+  $("kTb").innerHTML=S.kendaraan.length?S.kendaraan.map(function(k,i){
+    var vStd = k.volStd || (k.p*k.l*k.t);
+    return '<tr><td>'+(i+1)+'</td><td><b>'+esc(k.nomor)+'</b></td><td>'+fmt(k.p)+'<br>'+im(k.fp)+'</td><td>'+fmt(k.l)+'<br>'+im(k.fl)+'</td><td>'+fmt(k.t)+'<br>'+im(k.ft)+'</td><td>'+fmt(vStd)+'</td><td class="act"><button class="sec" data-ke="'+k.id+'">'+tr_("bEdit")+'</button> <button class="dg" data-kd="'+k.id+'">'+tr_("bDel")+'</button></td></tr>'
+  }).join(""):'<tr><td colspan="7" class="empty">'+tr_("empty1")+'</td></tr>'}
+  
+$("kTb").addEventListener("click",function(e){
+  var d=e.target.getAttribute("data-kd"),ed=e.target.getAttribute("data-ke");
+  if(d&&confirm(tr_("cDelK"))){S.kendaraan=S.kendaraan.filter(function(k){return String(k.id)!==d});save();renderK()}
+  if(ed){var k=S.kendaraan.find(function(x){return String(x.id)===ed});if(!k)return;
+    editK=k.id;$("kNo").value=k.nomor;$("kP").value=k.p;$("kL").value=k.l;
+    var vStd = k.volStd || (k.p*k.l*k.t);
+    $("kVol").value=fmt(vStd); hitungTinggiK();
+    tmpK={fp:k.fp,fl:k.fl,ft:k.ft};showK();setK();window.scrollTo({top:0,behavior:"smooth"})}});
+
+/* ---- Langkah 2: pilih kendaraan & catat rit ---- */
+function curK(){return S.kendaraan.find(function(k){return String(k.id)===$("rSel").value})}
+function hitR(){
+  var p=num($("rP").value), l=num($("rL").value), v=num($("rVol").value);
+  var t = (p&&l)? (v/(p*l)) : 0;
+  $("rT").textContent=fmt(t);
+}
+function pilihK(){var k=curK();$("rBox").style.display=k?"":"none";if(!k)return;
+  $("rNo").textContent=k.nomor;$("rP").value=k.p;$("rL").value=k.l;
+  var vStd = k.volStd || (k.p*k.l*k.t);
+  $("rVol").value=fmt(vStd);
+  $("rThumbs").innerHTML=[["fp","p"],["fl","l"],["ft","t"]].map(function(x){return k[x[0]]?'<figure style="margin:0;text-align:center"><img class="th" src="'+k[x[0]]+'"><figcaption style="font-size:11px;color:var(--mut)">'+tr_(x[1])+'</figcaption></figure>':""}).join("");
+  hitR()}
+function fillSel(){var sel=$("rSel"),cur=sel.value;
+  sel.innerHTML='<option value="">'+tr_("pilih")+'</option>'+S.kendaraan.map(function(k){return '<option value="'+k.id+'">'+esc(k.nomor)+'</option>'}).join("");
+  sel.value=cur;if(sel.value!==cur)sel.value="";pilihK()}
+function drawR(){$("rPrev").innerHTML=tmpR.map(function(s,i){return '<img src="'+s+'" data-i2="'+i+'" title="'+tr_("tapDel")+'">'}).join("")}
+$("rPrev").addEventListener("click",function(e){var i=e.target.getAttribute("data-i2");if(i!==null){tmpR.splice(+i,1);drawR()}});
+$("rSel").addEventListener("change",function(){var k=curK();tmpR=[];drawR();$("rMsg").textContent="";pilihK()});
+$("rVol").addEventListener("input",hitR);
+$("rCam").onclick=function(){ambilFoto(function(d){tmpR.push(d);drawR()},true)};
+$("rGal").onclick=function(){ambilFoto(function(d){tmpR.push(d);drawR()},false)};
+$("rSave").onclick=function(){
+  var k=curK();if(!k){alert(tr_("aPilih"));return}
+  var v=num($("rVol").value); if(!v){alert(tr_("aVol"));return}
+  if(!tmpR.length){alert(tr_("aFotoRit"));return}
+  
+  var t = v / (k.p * k.l);
+  var tg=S.tgl||hari();
+  
+  S.rits.push({id:Date.now(),kid:k.id,nomor:k.nomor,p:k.p,l:k.l,t:t,vol:v,foto:tmpR.slice(),tgl:tg,waktu:Date.now()});
+  save();tmpR=[];drawR();
+  
+  var kStd = k.volStd || (k.p*k.l*k.t);
+  $("rVol").value=fmt(kStd); hitR();
+  
+  var n=S.rits.filter(function(r){return r.nomor===k.nomor&&r.tgl===tg}).length;
+  $("rMsg").textContent=tr_("ok")+" — "+k.nomor+" #"+n+" ("+fmt(v)+" m³)"};
+
+/* ---- Langkah 3: rekap ---- */
+function filt(){var a=$("fDari").value,b=$("fSmp").value;return S.rits.filter(function(r){return(!a||r.tgl>=a)&&(!b||r.tgl<=b)})}
+function wkt(w){return new Date(w).toLocaleString(tr_("loc"),{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false})}
+function renderRekap(){
+  var R=filt(),tot=0,by={},a=$("fDari").value,b=$("fSmp").value;
+  R.forEach(function(r){tot+=r.vol;var x=by[r.nomor]=by[r.nomor]||{n:0,v:0};x.n++;x.v+=r.vol});
+  $("rHead").textContent=tr_("rekapT")+(S.proyek?" — "+S.proyek:"")+((a||b)?" · "+(a||"…")+" – "+(b||"…"):"");
+  $("sRit").textContent=R.length;$("sVol").textContent=fmt(tot)+" m³";
+  var ks=Object.keys(by);
+  $("aTb").innerHTML=ks.length?ks.map(function(n,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc(n)+'</b></td><td>'+by[n].n+'</td><td class="vol">'+fmt(by[n].v)+'</td></tr>'}).join(""):'<tr><td colspan="4" class="empty">'+tr_("empty2")+'</td></tr>';
+  $("aTf").innerHTML=ks.length?'<tr><th colspan="2">'+tr_("total")+'</th><th>'+R.length+'</th><th>'+fmt(tot)+'</th></tr>':"";
+  $("dTb").innerHTML=R.length?R.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+(r.imp?r.tgl:wkt(r.waktu))+'</td><td><b>'+esc(r.nomor)+'</b></td><td>'+fmt(r.p)+' – '+fmt(r.l)+' – '+fmt(r.t)+'</td><td class="vol">'+fmt(r.vol)+'</td><td>'+r.foto.map(function(s){return '<img src="'+s+'" class="th">'}).join("")+'</td><td class="act noprint"><button class="dg" data-rd="'+r.id+'">'+tr_("bDel")+'</button></td></tr>'}).join(""):'<tr><td colspan="7" class="empty">'+tr_("empty2")+'</td></tr>';
+  $("dTf").innerHTML=R.length?'<tr><th colspan="4">'+tr_("total")+' ('+R.length+' '+tr_("ritU")+')</th><th>'+fmt(tot)+'</th><th colspan="2"></th></tr>':""}
+$("fDari").onchange=renderRekap;$("fSmp").onchange=renderRekap;
+$("dTb").addEventListener("click",function(e){var d=e.target.getAttribute("data-rd");
+  if(d&&confirm(tr_("cDelR"))){S.rits=S.rits.filter(function(r){return String(r.id)!==d});save();renderRekap()}});
+
+// BACKUP / RESTORE FEATURES
+$("backupBtn").onclick=function(){
+  var dataStr=JSON.stringify(S);
+  var blob=new Blob([dataStr],{type:"application/json"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");
+  a.href=url;
+  a.download="backup-urugan-tanah-"+(S.proyek||"proyek")+"-"+hari()+".json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+$("restoreBtn").onclick=function(){ $("restoreFile").click(); };
+$("restoreFile").onchange=function(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var parsed=JSON.parse(ev.target.result);
+      if(parsed.kendaraan && parsed.rits){
+        if(confirm("Ganti semua data saat ini dengan data dari file backup?")){
+          S=parsed;
+          save();
+          if(S.proyek)$("proyek").value=S.proyek;
+          if(S.tgl)$("tgl").value=S.tgl;
+          renderK();fillSel();renderRekap();
+          alert("Data berhasil dipulihkan!");
+        }
+      } else {
+        alert("Format file tidak valid.");
+      }
+    }catch(err){
+      alert("Gagal membaca file: "+err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value="";
+};
+
+$("csv").onclick=function(){
+  var q=function(s){return '"'+String(s).replace(/"/g,'""')+'"'};
+  var out=[[tr_("no"),tr_("tgl"),tr_("waktu"),tr_("truck"),tr_("p"),tr_("l"),tr_("t"),tr_("vol"),tr_("nFoto")].map(q).join(",")];
+  filt().forEach(function(r,i){out.push([i+1,r.tgl||"",(r.imp?"":wkt(r.waktu)),r.nomor,r.p,r.l,r.t,r.vol.toFixed(2),r.foto.length].map(q).join(","))});
+  var bl=new Blob(["\ufeff"+out.join("\n")],{type:"text/csv"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(bl);a.download="rekap-urugan-tanah-"+hari()+".csv";a.click()};
+$("cetak").onclick=function(){window.print()};
+$("hapusSemua").onclick=function(){if(S.rits.length&&confirm(tr_("cDelAll"))){S.rits=[];save();renderRekap()}};
+
+/* ---- umum ---- */
+document.addEventListener("click",function(e){if(e.target.classList&&e.target.classList.contains("th")){$("lb").firstElementChild.src=e.target.src;$("lb").style.display="flex"}});
+$("lb").onclick=function(){this.style.display="none"};
+$("proyek").addEventListener("input",function(){S.proyek=this.value;save()});
+$("tgl").addEventListener("change",function(){S.tgl=this.value;save()});
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i]").forEach(function(e){e.textContent=tr_(e.getAttribute("data-i"))});
+  document.querySelectorAll("[data-ph]").forEach(function(e){e.placeholder=tr_(e.getAttribute("data-ph"))});
+  $("lang").textContent=tr_("sw");setK();renderK();fillSel();drawR();renderRekap()}
+$("lang").onclick=function(){LANG=LANG==="id"?"vi":"id";S.lang=LANG;save();applyLang()};
+load();LANG=S.lang==="vi"?"vi":"id";
+
+// Default Value Logic
+if(!S.proyek) S.proyek="Depot Banjar Baru";
+$("proyek").value=S.proyek||"";
+if(!S.tgl) S.tgl=hari();
+$("tgl").value=S.tgl;
+
+applyLang();showK();show(S.kendaraan.length?2:1);
+</script>
+</body>
+                                                       </html>
